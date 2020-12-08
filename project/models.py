@@ -1,11 +1,13 @@
-from sqlalchemy import Boolean,Integer,String,Column,ForeignKey
+from sqlalchemy import Integer,String,Column
 
-from .dbbase import Base
+from project.dbbase import Base
 
 class Users(Base):
     __tablename__ = 'users'
 
     id = Column(Integer,primary_key=True,index=True,autoincrement=True)
     username = Column(String,unique=True,index=True)
-    emali = Column(String,unique=True)
     hashpass = Column(String)
+    email = Column(String,unique=True)
+
+
