@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
 from project import models, schemas,token_config
-
+from datetime import timedelta
+import jwt
 
 
 def get_user(db : Session,username : str = None,hashpass:str =None):
@@ -16,3 +17,9 @@ def creat_user(db : Session, user: schemas.Uesrcreat):
     db.commit()
     db.refresh(session_data)
     return session_data
+
+def creat_user_token(user_data: dict,expires_delta: timedelta = None):
+    if expires_delta:
+        pass
+    jwt_token = jwt.encode(user_data,token_config.SECRET_KEY,algorithm=token_config.ALGORITHM)
+    return jwt_token

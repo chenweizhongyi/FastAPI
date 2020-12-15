@@ -15,3 +15,7 @@ class Uesrcreat(Uesr):
 
 class UesrBase(Uesr):
     id: str
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
