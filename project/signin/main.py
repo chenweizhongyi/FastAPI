@@ -11,7 +11,6 @@ from project.dbbase import engine,Sessionloc
 models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/login')
 
 def create_session():
     db = Sessionloc()
@@ -43,9 +42,10 @@ def login(from_data:OAuth2PasswordRequestForm = Depends(),db:Session = Depends(c
     access_token = crud.creat_user_token(user_data={'sub':from_data.username},expires_delta=tiem_delta)
     return {"access_token":access_token,"token_type":"bearer"}
 
-@app.get('/user/me',response_model=schemas.Uesr)
-def get_user(current_user: schemas.Uesr = Depends()):
-    pass
+@app.get('/user/me',response_model=schemas.TokenData)
+def get_user(db: Session = Depends(create_session)):
+    current_user: schemas.Uesr = crud.get_current_active_user(db)
+    return current_user
 
 if __name__ == '__main__':
     import uvicorn
