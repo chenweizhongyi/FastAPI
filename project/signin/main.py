@@ -4,6 +4,7 @@ from fastapi import FastAPI,Depends,HTTPException
 from fastapi.security import OAuth2PasswordRequestForm,OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from datetime import timedelta
+from typing import List
 
 from project import models,crud,schemas,token_config
 from project.dbbase import engine,Sessionloc
@@ -32,7 +33,7 @@ def create_user(user_data:schemas.Uesrcreat,db:Session = Depends(create_session)
 @app.post('/login',response_model=schemas.Token)
 def login(from_data:OAuth2PasswordRequestForm = Depends(),db:Session = Depends(create_session)):
     # 校验用户是否存在
-    get_username = crud.get_user(db,username=from_data.username,hashpass=from_data.password)
+    get_username = crud.cheok_user(db,username=from_data.username,hashpass=from_data.password)
     if get_username is None:
         raise HTTPException(status_code=404,detail='账号不存在')
     # 返回token
@@ -42,10 +43,16 @@ def login(from_data:OAuth2PasswordRequestForm = Depends(),db:Session = Depends(c
     access_token = crud.creat_user_token(user_data={'sub':from_data.username},expires_delta=tiem_delta)
     return {"access_token":access_token,"token_type":"bearer"}
 
-@app.get('/user/me',response_model=schemas.TokenData)
-def get_user(db: Session = Depends(create_session)):
-    current_user: schemas.Uesr = crud.get_current_active_user(db)
-    return current_user
+@app.get('/user/me',response_model=schemas.Uesr)
+def get_user(current_user: str = Depends(crud.get_current_active_user),
+             db: Session = Depends(create_session)):
+    user = crud.get_user(db,current_user)
+    return user
+
+@app.get('/users',response_model=List[schemas.Uesr])
+def get_users(db: Session = Depends(create_session)):
+    users = crud.get_users(db)
+    return users
 
 if __name__ == '__main__':
     import uvicorn
